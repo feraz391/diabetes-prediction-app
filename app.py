@@ -4,7 +4,7 @@ import numpy as np
 import joblib
 
 # Load the trained model (no scaling used)
-model = joblib.load("diabetes_model_simple (1).joblib")
+model = joblib.load("diabetes_model_simple.joblib")
 
 # App title and description
 st.title("Diabetes Prediction App")
