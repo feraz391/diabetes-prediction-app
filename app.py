@@ -3,16 +3,15 @@ import pandas as pd
 import numpy as np
 import joblib
 
-# Load the model and scaler
-model = joblib.load("best_diabetes_model.joblib")
-scaler = joblib.load("diabetes_scaler.joblib")
+# Load the trained model (no scaling used)
+model = joblib.load("diabetes_model_simple (1).joblib")
 
-# App title
+# App title and description
 st.title("Diabetes Prediction App")
-st.markdown("Predict whether a person is likely to have diabetes based on health data.")
+st.markdown("This app predicts whether a person is likely to have diabetes based on their medical information.")
 
-# Input form
-st.sidebar.header("Input Features")
+# Sidebar for user input
+st.sidebar.header("Enter Patient Data")
 
 def user_input():
     pregnancies = st.sidebar.number_input("Pregnancies", min_value=0, max_value=20, value=1)
@@ -25,14 +24,14 @@ def user_input():
     age = st.sidebar.number_input("Age", min_value=1, max_value=120, value=33)
 
     data = {
-        'Pregnancies': pregnancies,
-        'Glucose': glucose,
-        'BloodPressure': blood_pressure,
-        'SkinThickness': skin_thickness,
-        'Insulin': insulin,
-        'BMI': bmi,
-        'DiabetesPedigreeFunction': diabetes_pedigree,
-        'Age': age
+        "Pregnancies": pregnancies,
+        "Glucose": glucose,
+        "BloodPressure": blood_pressure,
+        "SkinThickness": skin_thickness,
+        "Insulin": insulin,
+        "BMI": bmi,
+        "DiabetesPedigreeFunction": diabetes_pedigree,
+        "Age": age
     }
 
     return pd.DataFrame(data, index=[0])
@@ -40,21 +39,24 @@ def user_input():
 # Collect user input
 input_df = user_input()
 
-# Main panel
-st.subheader("User Input:")
-st.write(input_df)
+# Ensure column order matches the model training
+expected_columns = [
+    "Pregnancies", "Glucose", "BloodPressure", "SkinThickness",
+    "Insulin", "BMI", "DiabetesPedigreeFunction", "Age"
+]
+input_data = input_df[expected_columns]
 
-# Preprocess the input
-scaled_input = scaler.transform(input_df)
+# Show input
+st.subheader("Entered Patient Data:")
+st.write(input_data)
 
-# Make prediction
+# Predict button
 if st.button("Predict"):
-    prediction = model.predict(scaled_input)
-    prediction_proba = model.predict_proba(scaled_input)
+    prediction = model.predict(input_data)
+    prediction_proba = model.predict_proba(input_data)
 
     st.subheader("Prediction:")
-    st.write("Diabetic" if prediction[0] == 1 else "Not Diabetic")
+    st.success("Diabetic" if prediction[0] == 1 else "Not Diabetic")
 
     st.subheader("Prediction Probability:")
-    st.write(f"Probability of being diabetic: {prediction_proba[0][1]:.2f}")
-
+    st.info(f"Probability of being diabetic: {prediction_proba[0][1]:.2f}")
